@@ -5,3 +5,4 @@ obj
 SQLDb
 *.mdf
 *.ldf
+appsettings.json

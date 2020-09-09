@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using DatingApp.API.Data;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -12,6 +14,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
 
 namespace DatingApp.API
 {
@@ -31,6 +34,22 @@ namespace DatingApp.API
            services.AddDbContext<DataContext>(x => x.UseSqlServer(Configuration.GetConnectionString("DefaultConnectionString")));
            services.AddControllers();
            services.AddCors();
+           services.AddScoped<IAuthRepository,AuthRepository>();
+           
+           // Setup of the authentication scheme.  Used where the 'attribute' [Authorize] is assigned in the controller (presently).
+           services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options => 
+                {
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuerSigningKey = true,
+                        // The token from the "AppSettings" is a string but needs to be encoded to bytes for the SymmetricSecurityKey object.
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII
+                            .GetBytes(Configuration.GetSection("AppSettings:Token").Value)),
+                        ValidateIssuer = false,
+                        ValidateAudience = false
+                    };
+                });
            /*
            services.AddCors(options => 
            {
@@ -60,7 +79,7 @@ namespace DatingApp.API
             app.UseCors(x => x.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
             //app.UseCors(corsDefaultPolicy);
             
-                        
+            app.UseAuthentication();            
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
