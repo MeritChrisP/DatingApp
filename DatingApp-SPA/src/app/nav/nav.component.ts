@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from '../_services/auth.service';
 import { NgControlStatus } from '@angular/forms';
+import { AlertifyService } from '../_services/alertify.service';
 
 @Component({
   selector: 'app-nav',
@@ -11,31 +12,27 @@ export class NavComponent implements OnInit {
 
   model: any = {};
 
-  constructor(private authservice: AuthService) { }
+  constructor(public authService: AuthService, private alertify: AlertifyService) { }
 
   ngOnInit() {
   }
 
   login(){
-    this.authservice.login(this.model).subscribe(next => {
-        console.log('Login successful.');
+    this.authService.login(this.model).subscribe(next => {
+        this.alertify.success('Login successful.');
       }, error => {
-        console.log('Login failed.');
+        this.alertify.error('Login failed.');
       }
     );
   }
 
   loggedIn(): boolean{
-
-    // The '!!' is shorthand and implies a boolean value to be returned based on the presence of a value in the variable 'token'.
-    // Return 'true' if 'token' contains a value and 'false' if not.
-    const token = localStorage.getItem('token');
-    return !!token;
+    return this.authService.loggedIn();
   }
 
   logout(): void {
     localStorage.removeItem('token');
-    console.log('Logged out successfully.');
+    this.alertify.message('Logged out successfully.');
   }
 
 }

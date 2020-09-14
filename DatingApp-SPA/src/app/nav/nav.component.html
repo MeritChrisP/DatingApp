@@ -1,8 +1,7 @@
-<nav class="navbar navbar-expand-md navbar-dark bg-dark mb-4">
-  <a class="navbar-brand" href="#">Dating App</a>
-  
-  
-    <ul class="navbar-nav mr-auto">
+<nav class="navbar navbar-expand-md navbar-dark bg-primary mb-4">
+  <div class="container">
+    <a class="navbar-brand" href="#">Dating App</a>
+    <ul *ngIf="loggedIn()" class="navbar-nav mr-auto">
       <li class="nav-item active">
         <a class="nav-link" href="#">Matches</a>
       </li>
@@ -12,23 +11,19 @@
       <li class="nav-item">
         <a class="nav-link" href="#">Messages</a>
       </li>
-      <!--Use of a 'click' event on a link/hyerlink text to call a method.  In this case the 'logout' method.-->
-      <li class="nav-item">
-        <a class="nav-link" href="#" (click)="logout()">Logout</a>
-      </li>
     </ul>
 
     <!--The '*ngIf' allows for the drop down to show/display based on the result of the 'loggedIn' method found in the 'component.ts'-->
-    <div *ngIf="loggedIn()" class="dropdown">
-      <a class="btn btn-secondary dropdown-toggle text-light">
-        Welcome User
+    <div *ngIf="loggedIn()" class="dropdown" dropdown>
+      <a class="nav-link dropdown-toggle text-light" href="#" dropdownToggle>
+        Welcome {{authService.decodedToken?.unique_name | titlecase}}
       </a>
     
       <!--fa is the use of 'font-awesome'-->
-      <div class="dropdown-menu" >
+      <div class="dropdown-menu mt-3" *dropdownMenu>
         <a class="dropdown-item" href="#"><i class="fa fa-user"></i> Edit Profile</a>
         <div class="dropdown-divider"></div>
-        <a class="dropdown-item" href="#"><i class="fa fa-sign-out"></i> Logout</a>
+        <a class="dropdown-item" href="#" (click)="logout()"><i class="fa fa-sign-out"></i> Logout</a>
       </div>
     </div>
 
@@ -42,4 +37,7 @@
         placeholder="Password" required [(ngModel)]="model.password">
       <button [disabled]="!loginForm.valid"class="btn btn-success my-2 my-sm-0" type="submit">Login</button>
     </form>
+  </div>
+  
+  
 </nav>
