@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using AutoMapper;
 using DatingApp.API.Data;
 using DatingApp.API.Helpers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -19,6 +20,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json.Serialization;
+
 
 namespace DatingApp.API
 {
@@ -36,9 +39,16 @@ namespace DatingApp.API
         public void ConfigureServices(IServiceCollection services)
         {
            services.AddDbContext<DataContext>(x => x.UseSqlServer(Configuration.GetConnectionString("DefaultConnectionString")));
-           services.AddControllers();
+           //services.AddControllers().AddNewtonsoftJson();
+           services.AddControllers().AddNewtonsoftJson(options =>
+            {
+                //options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+                options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+            });
            services.AddCors();
+           services.AddAutoMapper(typeof(DatingRepository).Assembly);
            services.AddScoped<IAuthRepository,AuthRepository>();
+           services.AddScoped<IDatingRepository,DatingRepository>();
            
            // Setup of the authentication scheme.  Used where the 'attribute' [Authorize] is assigned in the controller (presently).
            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
