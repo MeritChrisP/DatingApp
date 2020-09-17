@@ -1,0 +1,10 @@
+<p>
+  <div class="container mt-5">
+    <div class="row">
+      <!--"lg" = large screen size, "md" = medium screen size and "sm" = small screen size-->
+      <!--The "col-<number>" attributes to the number of grid columns-->
+      <div *ngFor="let user of users" class="col-lg-2 col-md-3 col-sm-6">
+        <app-member-card [user]="user"></app-member-card>
+      </div>
+    </div>
+  </div>
