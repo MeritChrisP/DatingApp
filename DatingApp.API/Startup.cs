@@ -50,7 +50,7 @@ namespace DatingApp.API
            services.AddAutoMapper(typeof(DatingRepository).Assembly);
            services.AddScoped<IAuthRepository,AuthRepository>();
            services.AddScoped<IDatingRepository,DatingRepository>();
-           
+                      
            // Setup of the authentication scheme.  Used where the 'attribute' [Authorize] is assigned in the controller (presently).
            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options => 
@@ -65,6 +65,8 @@ namespace DatingApp.API
                         ValidateAudience = false
                     };
                 });
+            services.AddScoped<LogUserActivity>();
+            
            /*
            services.AddCors(options => 
            {
