@@ -57,8 +57,21 @@ constructor(private http: HttpClient) { }
       );
   }
 
-  getUser(id): Observable<User> {
-    return this.http.get<User>(this.baseUrl + 'users/' + id);
+  getUser(id: number, allUserPhotos?: boolean): Observable<User> {
+    
+    let params = new HttpParams();
+
+    if (allUserPhotos == true)
+    {
+      params = params.append('allmemberphotos', 'true');
+    }
+    else
+    {
+      params = params.append('allmemberphotos', 'false');
+    }
+    console.log(params);
+    return this.http.get<User>(this.baseUrl + 'users/' + id, {params: params});
+    
   }
   updateUser(id: number, user: User) {
     return this.http.put(this.baseUrl + 'users/' + id, user);

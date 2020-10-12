@@ -6,7 +6,6 @@ using DatingApp.API.Data;
 using DatingApp.API.DTOs;
 using DatingApp.API.Helpers;
 using DatingApp.API.Models;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DatingApp.API.Controllers
@@ -48,9 +47,9 @@ namespace DatingApp.API.Controllers
         }
 
         [HttpGet("{id}", Name = "GetUser")]
-        public async Task<IActionResult> GetUser(int id)
+        public async Task<IActionResult> GetUser(int id, [FromQuery]UserParams userParams)
         {
-            var user = await _repo.GetUser(id);
+            var user = await _repo.GetUser(id, userParams.AllMemberPhotos);
 
             var userToReturn = _mapper.Map<UserForDetailedDTO>(user);
 

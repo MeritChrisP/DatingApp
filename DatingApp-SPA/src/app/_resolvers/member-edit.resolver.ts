@@ -9,6 +9,7 @@ import { UserService } from '../_services/user.service';
 
 @Injectable()
 export class MemberEditResolver implements Resolve<User> {
+    getAllUserPhotos: boolean;
     constructor(private userService: UserService, private authService: AuthService,
         private router: Router, private alertify: AlertifyService) {}
 
@@ -17,7 +18,7 @@ export class MemberEditResolver implements Resolve<User> {
         /*
         Route the returning values otherwise error and return to the members page.
         */
-        return this.userService.getUser(this.authService.decodedToken.nameid).pipe(
+        return this.userService.getUser(this.authService.decodedToken.nameid, true).pipe(
             catchError(error => {
                 this.alertify.error('Problem retrieving your data for member edit.');
                 this.router.navigate(['/members']);

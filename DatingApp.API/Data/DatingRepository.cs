@@ -91,19 +91,29 @@ namespace DatingApp.API.Data
             }
         }
 
-        public async Task<User> GetUser(int Id)
+        public async Task<User> GetUser(int Id, bool MemberEdit)
         {
             /*
             Find the user and include any photos relating to that user.  If no user is found then "user" will
             be returned as a null value.
             */
-            var user = await  _context.Users.Include(p => p.Photos).FirstOrDefaultAsync(u => u.Id == Id);
-            return user;
+            if (MemberEdit == true)
+            {
+                return await _context.Users.Include(p => p.Photos).IgnoreQueryFilters().FirstOrDefaultAsync(u => u.Id == Id);
+            }
+            else
+            {
+                return await _context.Users.Include(p => p.Photos).FirstOrDefaultAsync(u => u.Id == Id);
+            }
+            
+            
+
+            //return user;
         }
 
         public async Task<Photo> GetPhoto(int id)
         {
-            var photo = await _context.Photos.FirstOrDefaultAsync(p => p.Id==id);
+            var photo = await _context.Photos.IgnoreQueryFilters().FirstOrDefaultAsync(p => p.Id==id);
 
             return photo;
         }
@@ -166,5 +176,8 @@ namespace DatingApp.API.Data
 
             return messages;
         }
+
+
+        
     }
 }

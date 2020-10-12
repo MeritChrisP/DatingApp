@@ -1,5 +1,7 @@
+using System;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using DatingApp.API.Data;
 using DatingApp.API.DTOs;
 using DatingApp.API.Models;
@@ -16,9 +18,13 @@ namespace DatingApp.API.Controllers
     {
         private readonly DataContext _context;
         private readonly UserManager<User> _userManager;
+        private readonly IDatingRepository _repo;
+        private readonly IPhotoRepository _repoPhoto;
 
-        public AdminController(DataContext context, UserManager<User> userManager)
+        public AdminController(DataContext context, UserManager<User> userManager, IDatingRepository repo, IPhotoRepository repoPhoto)
         {
+            _repoPhoto = repoPhoto;
+            _repo = repo;
             _userManager = userManager;
             _context = context;
 
@@ -69,7 +75,7 @@ namespace DatingApp.API.Controllers
                 selectedRoles = ''
             end
             */
-            selectedRoles = selectedRoles ?? new string[] {};
+            selectedRoles = selectedRoles ?? new string[] { };
 
             var result = await _userManager.AddToRolesAsync(user, selectedRoles.Except(userRoles));
 
@@ -87,16 +93,58 @@ namespace DatingApp.API.Controllers
 
             return Ok(await _userManager.GetRolesAsync(user));
 
-
-
-
         }
 
         [Authorize(Policy = "ModeratePhotoRole")]
         [HttpGet("photosForModeration")]
-        public IActionResult GetPhotosForModeration()
+        public async Task<IActionResult> GetPhotosForModeration()
         {
-            return Ok("Admins or moderators can see this.");
+            //return Ok(_context.Photos.Where(p => p.IsApproved == false));
+            //var photosToReturn = await _context.Photos.Where(p => p.IsApproved == false).ToListAsync();
+
+            //return Ok(photosToReturn);
+            
+            return Ok(await _repoPhoto.GetPhotosForModeration());
         }
+
+        [Authorize(Policy = "ModeratePhotoRole")]
+        [HttpPost("photosForModeration/approve/{id}")]
+        public async Task<IActionResult> ApprovePhoto(int id)
+        {
+
+            var photoToApprove = await _repo.GetPhoto(id);
+
+            if (photoToApprove == null)
+            {
+                return BadRequest("Photo does not exist.");
+            }
+
+            if (photoToApprove.IsApproved == true)
+            {
+                return BadRequest("Photo has already been approved.");
+            }
+
+            photoToApprove.IsApproved = true;
+
+            if (await _repo.SaveAll())
+                return NoContent();
+
+
+            throw new Exception("Error approving photo.");
+        }
+
+        [Authorize(Policy = "ModeratePhotoRole")]
+        [HttpPost("photosForModeration/reject/{id}")]
+        public async Task<IActionResult> RejectPhoto(int id)
+        {
+            if (await _repoPhoto.DeletePhoto(id))
+            {
+                return Ok();
+            }
+                        
+            return BadRequest("Error rejecting photo.");
+        }
+
+
     }
 }
