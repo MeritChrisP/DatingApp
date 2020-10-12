@@ -87,7 +87,10 @@ namespace DatingApp.API
                 options.Filters.Add(new AuthorizeFilter(policy));
            });
 
-           services.AddDbContext<DataContext>(x => x.UseSqlServer(Configuration.GetConnectionString("DefaultConnectionString")));
+           services.AddDbContext<DataContext>(x => {
+               x.UseLazyLoadingProxies();
+               x.UseSqlServer(Configuration.GetConnectionString("DefaultConnectionString"));
+           });
            //services.AddControllers().AddNewtonsoftJson();
            services.AddControllers().AddNewtonsoftJson(options =>
             {
